@@ -1,13 +1,4 @@
-
-[![Build Status](https://travis-ci.org/nginxinc/kubernetes-ingress.svg?branch=master)](https://travis-ci.org/nginxinc/kubernetes-ingress)  [![FOSSA Status](https://app.fossa.io/api/projects/custom%2B1062%2Fgithub.com%2Fnginxinc%2Fkubernetes-ingress.svg?type=shield)](https://app.fossa.io/projects/custom%2B1062%2Fgithub.com%2Fnginxinc%2Fkubernetes-ingress?ref=badge_shield)  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![Go Report Card](https://goreportcard.com/badge/github.com/nginxinc/kubernetes-ingress)](https://goreportcard.com/report/github.com/nginxinc/kubernetes-ingress)
-
-# NGINX Ingress Controller
-
-This repo provides an implementation of an Ingress controller for NGINX and NGINX Plus. 
-
-**Note**: this project is different from the NGINX Ingress controller in [kubernetes/ingress-nginx](https://github.com/kubernetes/ingress-nginx) repo. See [this doc](docs/nginx-ingress-controllers.md) to find out about the key differences.
-
-## What is the Ingress?
+# What is the Ingress?
 
 The Ingress is a Kubernetes resource that lets you configure an HTTP load balancer for applications running on Kubernetes, represented by one or more [Services](https://kubernetes.io/docs/concepts/services-networking/service/). Such a load balancer is necessary to deliver those applications to clients outside of the Kubernetes cluster.
 
@@ -15,7 +6,6 @@ The Ingress resource supports the following features:
 * **Content-based routing**:
     * *Host-based routing*. For example, routing requests with the host header `foo.example.com` to one group of services and the host header `bar.example.com` to another group.
     * *Path-based routing*. For example, routing requests with the URI that starts with `/serviceA` to service A and requests with the URI that starts with `/serviceB` to service B.
-* **TLS/SSL termination** for each hostname, such as `foo.example.com`.
 
 See the [Ingress User Guide](http://kubernetes.io/docs/user-guide/ingress/) to learn more about the Ingress resource.
 
@@ -25,56 +15,153 @@ The Ingress controller is an application that runs in a cluster and configures a
 
 In the case of NGINX, the Ingress controller is deployed in a pod along with the load balancer.
 
-## NGINX Ingress Controller
 
-NGINX Ingress controller works with both NGINX and NGINX Plus and supports the standard Ingress features - content-based routing and TLS/SSL termination.
+# Installing the Ingress Controller In AWS 
 
-Additionally, several NGINX and NGINX Plus features are available as extensions to the Ingress resource via annotations and the ConfigMap resource. In addition to HTTP, NGINX Ingress controller supports load balancing Websocket, gRPC, TCP and UDP applications. See [ConfigMap](https://docs.nginx.com/nginx-ingress-controller/configuration/global-configuration/configmap-resource/) and [Annotations](https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/advanced-configuration-with-annotations/) docs to learn more about the supported features and customization options.
+## 1. Clone Kubernetes Nginx Ingress Manifests into server where you have kubectl
 
-As an alternative to the Ingress, NGINX Ingress controller supports the VirtualServer and VirtualServerRoute resources. They enable use cases not supported with the Ingress resource, such as traffic splitting and advanced content-based routing. See [VirtualServer and VirtualServerRoute Resources doc](https://docs.nginx.com/nginx-ingress-controller/configuration/virtualserver-and-virtualserverroute-resources/).
+```
+$ git clone https://github.com/nginxinc/kubernetes-ingress/
 
-Read [this doc](docs/nginx-plus.md) to learn more about NGINX Ingress controller with NGINX Plus.
+$ cd kubernetes-ingress/deployments
+```
+## 2. Create a Namespace, a SA, the Default Secret, Config Map
 
-## Getting Started
-
-1. Install the NGINX Ingress controller using the Kubernetes [manifests](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/) or the [helm chart](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/).
-1. Configure load balancing for a simple web application:
-    * Use the Ingress resource. See the [Cafe example](examples/complete-example).
-    * Or the VirtualServer resource. See the [Basic configuration](examples-of-custom-resources/basic-configuration) example.
-1. See additional configuration [examples](examples).
-1. Learn more about all available configuration and customization in the [docs](https://docs.nginx.com/nginx-ingress-controller/).
+```
+ $ kubectl apply -f common/
+```
 
 
-## NGINX Ingress Controller Releases
+## 3. Deploy the Ingress Controller
 
-We publish Ingress controller releases on GitHub. See our [releases page](https://github.com/nginxinc/kubernetes-ingress/releases).
+We include two options for deploying the Ingress controller:
+ * *Deployment*. Use a Deployment if you plan to dynamically change the number of Ingress controller replicas.
+ * *DaemonSet*. Use a DaemonSet for deploying the Ingress controller on every node or a subset of nodes.
 
-The latest stable release is [1.6.1](https://github.com/nginxinc/kubernetes-ingress/releases/tag/v1.6.1). For production use, we recommend that you choose the latest stable release.  As an alternative, you can choose the *edge* version built from the [latest commit](https://github.com/nginxinc/kubernetes-ingress/commits/master) from the master branch. The edge version is useful for experimenting with new features that are not yet published in a stable release.
+### 3.1 Create a DaemonSet
 
-To use the Ingress controller, you need to have access to:
-* An Ingress controller image.
-* Installation manifests or a Helm chart.
-* Documentation and examples.
+When you run the Ingress Controller by using a DaemonSet, Kubernetes will create an Ingress controller pod on every node of the cluster.
 
-It is important that the versions of those things above match. 
+```
+ $ kubectl apply -f daemon-set/nginx-ingress.yaml
+ ```
 
-The table below summarizes the options regarding the images, manifests, helm chart, documentation and examples and gives your links to the correct versions:
+## 4. Check that the Ingress Controller is Running
 
-| Version | Description |  Image for NGINX | Image for NGINX Plus | Installation Manifests and Helm Chart | Documentation and Examples |
-| ------- | ----------- | --------------- | -------------------- | ---------------------------------------| -------------------------- |
-| Latest stable release | For production use | `nginx/nginx-ingress:1.6.1`, `nginx/nginx-ingress:1.6.1-alpine` from [DockerHub](https://hub.docker.com/r/nginx/nginx-ingress/) or [build your own image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/). | [Build your own image](https://docs.nginx.com/nginx-ingress-controller/installation/building-ingress-controller-image/). | [Manifests](https://github.com/nginxinc/kubernetes-ingress/tree/v1.6.1/deployments). [Helm chart](https://github.com/nginxinc/kubernetes-ingress/tree/v1.6.1/deployments/helm-chart). | [Documentation](https://docs.nginx.com/nginx-ingress-controller/). [Examples](https://docs.nginx.com/nginx-ingress-controller/configuration/configuration-examples/). |
-| Edge | For testing and experimenting | `nginx/nginx-ingress:edge`, `nginx/nginx-ingress:edge-alpine` from [DockerHub](https://hub.docker.com/r/nginx/nginx-ingress/) or [build your own image](https://github.com/nginxinc/kubernetes-ingress/tree/master/docs-web/installation/building-ingress-controller-image.md). | [Build your own image](https://github.com/nginxinc/kubernetes-ingress/tree/master/docs-web/installation/building-ingress-controller-image.md). | [Manifests](https://github.com/nginxinc/kubernetes-ingress/tree/master/deployments). [Helm chart](https://github.com/nginxinc/kubernetes-ingress/tree/master/deployments/helm-chart). | [Documentation](https://github.com/nginxinc/kubernetes-ingress/tree/master/docs-web). [Examples](https://github.com/nginxinc/kubernetes-ingress/tree/master/examples). |
+Check that the Ingress Controller is Running
+Run the following command to make sure that the Ingress controller pods are running:
+```
+$ kubectl get pods --namespace=nginx-ingress
+```
 
-## Contacts
+## 4. Get Access to the Ingress Controller
 
-We’d like to hear your feedback! If you have any suggestions or experience issues with our Ingress controller, please create an issue or send a pull request on Github.
-You can contact us directly via [kubernetes@nginx.com](mailto:kubernetes@nginx.com).
+ **If you created a daemonset**, ports 80 and 443 of the Ingress controller container are mapped to the same ports of the node where the container is running. To access the Ingress controller, use those ports and an IP address of any node of the cluster where the Ingress controller is running.
 
-## Contributing
 
-If you'd like to contribute to the project, please read our [Contributing guide](CONTRIBUTING.md).
+### 4.1 Service with the Type LoadBalancer
 
-## Support 
+ Create a service with the type **LoadBalancer**. Kubernetes will allocate and configure a cloud load balancer for load balancing the Ingress controller pods.
 
-For NGINX Plus customers NGINX Ingress controller (when used with NGINX Plus) is covered 
-by the support contract.
+**For AWS, run:**
+```
+$ kubectl apply -f service/loadbalancer-aws-elb.yaml
+```
+
+To get the DNS name of the ELB, run:
+```
+$ kubectl describe svc nginx-ingress --namespace=nginx-ingress
+```
+You can resolve the DNS name into an IP address using `nslookup`:
+```
+$ nslookup <dns-name>
+```
+
+
+# 5. Ingress Resource:
+
+### 5.1 Define path based or host based routing rules for your services.
+
+### Single DNS Sample with host and servcie place holders
+``` yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-resource-1
+spec:
+  rules:
+  - host: <DomainNameOne>
+    http:
+      paths:
+      # Default Backend (Root /)
+      - backend:
+          serviceName: <serviceName>
+          servicePort: 80
+``` 
+
+### Multiple DNS Sample with hosts and servcies place holders
+``` yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-resource-1
+spec:
+  rules:
+  - host: <DomainNameOne>
+    http:
+      paths:
+      - backend:
+          serviceName: <serviceNameOne>
+          servicePort: 80
+  - host: <DomainNameTwo>
+    http:
+      paths:
+      - backend:
+          serviceName: <serviceNamTwo>
+          servicePort: 80	
+``` 		  
+
+### Path Based Routing Example
+``` yaml		  
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-resource-1
+spec:
+  rules:
+  - host: springboot.example.com
+    http:
+      paths:
+      # Default Path(/)
+      - backend:
+          serviceName: springboot
+          servicePort: 80
+      - path: /java-web-app
+        backend:
+          serviceName: javawebapp
+          servicePort: 80	
+``` 
+
+
+`Make sure you have services created in K8's with type ClusterIP for your applications. Which your are defining in Ingress Resource`.
+
+## Uninstall the Ingress Controller
+
+ Delete the `nginx-ingress` namespace to uninstall the Ingress controller along with all the auxiliary resources that were created:
+ ```
+ $ kubectl delete namespace nginx-ingress
+ ```
+
+ **Note**: If RBAC is enabled on your cluster and you completed step 2, you will need to remove the ClusterRole and ClusterRoleBinding created in that step:
+
+ ```
+ $ kubectl delete clusterrole nginx-ingress
+ $ kubectl delete clusterrolebinding nginx-ingress
+ ```
+
+
+
+
+
+
+
