@@ -76,6 +76,13 @@ To get the DNS name of the ELB, run:
 ```
 $ kubectl describe svc nginx-ingress --namespace=nginx-ingress
 ```
+
+`OR`
+
+```
+kubectl get svc -n nginx-ingress 
+```
+
 You can resolve the DNS name into an IP address using `nslookup`:
 ```
 $ nslookup <dns-name>
