@@ -25,20 +25,24 @@ $ git clone https://github.com/MithunTechnologiesDevOps/kubernetes-ingress.git
 
 $ cd kubernetes-ingress/deployments
 ```
-## 2. Create a Namespace, a SA, the Default Secret, Config Map
+## 2. Create a Namespace And SA
+
+```
+ $ kubectl apply -f common/ns-and-sa.yml
+```
+## 3. Create RBAC, Default Secret And Config Map
 
 ```
  $ kubectl apply -f common/
 ```
 
-
-## 3. Deploy the Ingress Controller
+## 4. Deploy the Ingress Controller
 
 We include two options for deploying the Ingress controller:
  * *Deployment*. Use a Deployment if you plan to dynamically change the number of Ingress controller replicas.
  * *DaemonSet*. Use a DaemonSet for deploying the Ingress controller on every node or a subset of nodes.
 
-### 3.1 Create a DaemonSet
+### 4.1 Create a DaemonSet
 
 When you run the Ingress Controller by using a DaemonSet, Kubernetes will create an Ingress controller pod on every node of the cluster.
 
@@ -46,7 +50,7 @@ When you run the Ingress Controller by using a DaemonSet, Kubernetes will create
  $ kubectl apply -f daemon-set/nginx-ingress.yaml
  ```
 
-## 4. Check that the Ingress Controller is Running
+## 5. Check that the Ingress Controller is Running
 
 Check that the Ingress Controller is Running
 Run the following command to make sure that the Ingress controller pods are running:
@@ -54,12 +58,12 @@ Run the following command to make sure that the Ingress controller pods are runn
 $ kubectl get pods --namespace=nginx-ingress
 ```
 
-## 4. Get Access to the Ingress Controller
+## 6. Get Access to the Ingress Controller
 
  **If you created a daemonset**, ports 80 and 443 of the Ingress controller container are mapped to the same ports of the node where the container is running. To access the Ingress controller, use those ports and an IP address of any node of the cluster where the Ingress controller is running.
 
 
-### 4.1 Service with the Type LoadBalancer
+### 6.1 Service with the Type LoadBalancer
 
  Create a service with the type **LoadBalancer**. Kubernetes will allocate and configure a cloud load balancer for load balancing the Ingress controller pods.
 
@@ -78,7 +82,7 @@ $ nslookup <dns-name>
 ```
 
 
-# 5. Ingress Resource:
+# 7. Ingress Resource:
 
 ### 5.1 Define path based or host based routing rules for your services.
 
@@ -158,10 +162,3 @@ spec:
  $ kubectl delete clusterrole nginx-ingress
  $ kubectl delete clusterrolebinding nginx-ingress
  ```
-
-
-
-
-
-
-
