@@ -28,7 +28,7 @@ $ cd kubernetes-ingress/deployments
 ## 2. Create a Namespace And SA
 
 ```
- $ kubectl apply -f common/ns-and-sa.yml
+ $ kubectl apply -f common/ns-and-sa.yaml
 ```
 ## 3. Create RBAC, Default Secret And Config Map
 
