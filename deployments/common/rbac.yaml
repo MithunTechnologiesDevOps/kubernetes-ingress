@@ -44,8 +44,9 @@ rules:
   verbs:
   - create
   - patch
+  - list
 - apiGroups:
-  - extensions
+  - networking.k8s.io
   resources:
   - ingresses
   verbs:
@@ -53,7 +54,7 @@ rules:
   - watch
   - get
 - apiGroups:
-  - "extensions"
+  - networking.k8s.io
   resources:
   - ingresses/status
   verbs:
@@ -63,10 +64,20 @@ rules:
   resources:
   - virtualservers
   - virtualserverroutes
+  - globalconfigurations
+  - transportservers
+  - policies
   verbs:
   - list
   - watch
   - get
+- apiGroups:
+  - k8s.nginx.org
+  resources:
+  - virtualservers/status
+  - virtualserverroutes/status
+  verbs:
+  - update
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
