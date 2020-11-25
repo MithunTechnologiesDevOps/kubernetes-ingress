@@ -1,3 +1,10 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+spec:
+  controller: nginx.org/ingress-controller   
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:

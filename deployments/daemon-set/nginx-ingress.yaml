@@ -27,8 +27,15 @@ spec:
         - name: https
           containerPort: 443
           hostPort: 443
+        - name: readiness-port
+          containerPort: 8081
        #- name: prometheus
          #containerPort: 9113
+        readinessProbe:
+         httpGet:
+           path: /nginx-ready
+           port: readiness-port
+         periodSeconds: 1
         securityContext:
           allowPrivilegeEscalation: true
           runAsUser: 101 #nginx
@@ -52,5 +59,5 @@ spec:
          #- -v=3 # Enables extensive logging. Useful for troubleshooting.
          #- -report-ingress-status
          #- -external-service=nginx-ingress
-         #- -enable-leader-election
          #- -enable-prometheus-metrics
+         #- -global-configuration=$(POD_NAMESPACE)/nginx-configuration
