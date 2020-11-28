@@ -100,6 +100,7 @@ kind: Ingress
 metadata:
   name: ingress-resource-1
 spec:
+  ingressClassName: nginx
   rules:
   - host: <DomainNameOne>
     http:
@@ -117,6 +118,7 @@ kind: Ingress
 metadata:
   name: ingress-resource-1
 spec:
+  ingressClassName: nginx
   rules:
   - host: <DomainNameOne>
     http:
@@ -139,6 +141,7 @@ kind: Ingress
 metadata:
   name: ingress-resource-1
 spec:
+  ingressClassName: nginx
   rules:
   - host: springboot.example.com
     http:
