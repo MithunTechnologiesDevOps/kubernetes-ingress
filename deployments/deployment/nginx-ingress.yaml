@@ -18,16 +18,23 @@ spec:
     spec:
       serviceAccountName: nginx-ingress
       containers:
-      - image: nginx/nginx-ingress:edge
-        imagePullPolicy: Always
+      - image: nginx/nginx-ingress:1.11.0
+        imagePullPolicy: IfNotPresent
         name: nginx-ingress
         ports:
         - name: http
           containerPort: 80
         - name: https
           containerPort: 443
+        - name: readiness-port
+          containerPort: 8081
        #- name: prometheus
          #containerPort: 9113
+        readinessProbe:
+          httpGet:
+            path: /nginx-ready
+            port: readiness-port
+          periodSeconds: 1
         securityContext:
           allowPrivilegeEscalation: true
           runAsUser: 101 #nginx
@@ -46,10 +53,11 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         args:
+          - -enable-custom-resources=false
           - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
           - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
          #- -v=3 # Enables extensive logging. Useful for troubleshooting.
          #- -report-ingress-status
          #- -external-service=nginx-ingress
-         #- -enable-leader-election
          #- -enable-prometheus-metrics
+         #- -global-configuration=$(POD_NAMESPACE)/nginx-configuration
