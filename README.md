@@ -173,7 +173,7 @@ spec:
           service:
             name: <servcieName>
             port:
-	      number: <servicePort>
+              number: <servicePort>
 ``` 
 
 
