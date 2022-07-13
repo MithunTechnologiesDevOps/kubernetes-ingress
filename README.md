@@ -95,65 +95,85 @@ $ nslookup <dns-name>
 
 ### Single DNS Sample with host and servcie place holders
 ``` yaml
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-resource-1
+  name: <name>
+  namespace: <namespace>
 spec:
   ingressClassName: nginx
   rules:
-  - host: <DomainNameOne>
+  - host: <domainName>
     http:
       paths:
-      # Default Backend (Root /)
-      - backend:
-          serviceName: <serviceName>
-          servicePort: 80
+      - pathType: Prefix
+        path: "/<Path>"
+        backend:
+          service:
+            name: <serviceName>
+            port:
+              number: <servicePort>
 ``` 
 
 ### Multiple DNS Sample with hosts and servcies place holders
 ``` yaml
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-resource-1
+  name: <name>
+  namespace: <namespace>
 spec:
   ingressClassName: nginx
   rules:
-  - host: <DomainNameOne>
+  - host: <domainName>
     http:
       paths:
-      - backend:
-          serviceName: <serviceNameOne>
-          servicePort: 80
-  - host: <DomainNameTwo>
+      - pathType: Prefix
+        path: "/<Path>"
+        backend:
+          service:
+            name: <serviceName>
+            port:
+              number: <servicePort>
+  - host: <domainName>
     http:
       paths:
-      - backend:
-          serviceName: <serviceNamTwo>
-          servicePort: 80	
+      - pathType: Prefix
+        path: "/<Path>"
+        backend:
+          service:
+            name: <serviceName>
+            port:
+              number: <servicePort>	
 ``` 		  
 
 ### Path Based Routing Example
 ``` yaml		  
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-resource-1
+  name: <name>
+  namespace: <nsname>
 spec:
   ingressClassName: nginx
   rules:
-  - host: springboot.example.com
+  - host: <domain>
     http:
       paths:
-      # Default Path(/)
-      - backend:
-          serviceName: springboot
-          servicePort: 80
-      - path: /java-web-app
+      - pathType: Prefix
+        path: "/<Path>"
         backend:
-          serviceName: javawebapp
-          servicePort: 80	
+          service:
+            name: <serviceName>
+            port:
+             number: <servicePort>
+      - pathType: Prefix
+        path: "/<path>"
+        backend:
+          service:
+            name: <servcieName>
+            port:
+	      number: <servicePort>
 ``` 
 
 
@@ -185,21 +205,33 @@ $ kubectl create secret tls mithun-ingress-tls --namespace default --key mithun-
 ```
 ### Mention tls/ssl(certificate) details in ingress
 ```
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-resource-1
+  name: mithuntechappingressrule
+  namespace: test-ns
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
-     - javawebapp.mithuntechdevops.co.in
-     secretName: mithun-ingress-tls
-  ingressClassName: nginx
+      - mithuntechdevops.co.in
+    secretName: mithun-ingress-tls
   rules:
-  - host: javawebapp.mithuntechdevops.co.in
+  - host: mithuntechdevops.co.in
     http:
       paths:
-      - backend:
-          serviceName: javawebappservice
-          servicePort: 80
+      - pathType: Prefix
+        path: "/java-web-app"
+        backend:
+          service:
+            name: javawebappsvc
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/maven-web-application"
+        backend:
+          service:
+            name: mavenwebappsvc
+            port:
+              number: 80
 ```

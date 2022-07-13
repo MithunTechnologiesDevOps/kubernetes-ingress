@@ -76,6 +76,9 @@ rules:
   resources:
   - virtualservers/status
   - virtualserverroutes/status
+  - policies/status
+  - transportservers/status
+  - dnsendpoints/status
   verbs:
   - update
 - apiGroups:
@@ -84,6 +87,42 @@ rules:
   - ingressclasses
   verbs:
   - get
+- apiGroups:
+    - cis.f5.com
+  resources:
+    - ingresslinks
+  verbs:
+    - list
+    - watch
+    - get
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates
+  verbs:
+    - list
+    - watch
+    - get
+    - update
+    - create
+    - delete
+- apiGroups:
+    - externaldns.nginx.org
+  resources:
+    - dnsendpoints
+  verbs:
+    - list
+    - watch
+    - get
+    - update
+    - create
+    - delete
+- apiGroups:
+  - externaldns.nginx.org
+  resources:
+  - dnsendpoints/status
+  verbs:
+  - update
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
