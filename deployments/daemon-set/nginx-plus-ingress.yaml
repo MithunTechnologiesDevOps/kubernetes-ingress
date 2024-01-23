@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: nginx-ingress
   namespace: nginx-ingress
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: nginx-ingress
@@ -33,14 +32,16 @@ spec:
 #      - name: nginx-log
 #        emptyDir: {}
       containers:
-      - image: nginx/nginx-ingress:3.4.0
+      - image: nginx-plus-ingress:3.4.0
         imagePullPolicy: IfNotPresent
-        name: nginx-ingress
+        name: nginx-plus-ingress
         ports:
         - name: http
           containerPort: 80
+          hostPort: 80
         - name: https
           containerPort: 443
+          hostPort: 443
         - name: readiness-port
           containerPort: 8081
         - name: prometheus
@@ -86,12 +87,12 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         args:
+          - -nginx-plus
           - -nginx-configmaps=$(POD_NAMESPACE)/nginx-config
-          - -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
-          - -enable-custom-resources=false
+         #- -default-server-tls-secret=$(POD_NAMESPACE)/default-server-secret
          #- -include-year
-         #- -enable-cert-manager
-         #- -enable-external-dns
+         #- -enable-app-protect
+         #- -enable-app-protect-dos
          #- -v=3 # Enables extensive logging. Useful for troubleshooting.
          #- -report-ingress-status
          #- -external-service=nginx-ingress
